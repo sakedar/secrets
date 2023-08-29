@@ -1,9 +1,11 @@
 //jshint esversion:
+require('dotenv').config();
 const express = require("express");
 const bodyparser = require("body-parser");
 const ejs = require("ejs");
 const _ = require("lodash");
 const mongoose = require("mongoose");
+const encrypt = require("mongoose-encryption");
 
 const app = express();
 
@@ -17,10 +19,13 @@ async function main() {
   console.log("Connected to mongoDB");
 };
 
-const userSchema = {
+const userSchema = new mongoose.Schema({
   email: String,
   password: String
-};
+});
+
+
+userSchema.plugin(encrypt, {secret: process.env.SECRET, encryptedFields: ["password"] });
 
 const User = new mongoose.model("User", userSchema);
 
@@ -33,7 +38,7 @@ app.get("/login", function(req, res){
 });
 
 app.get("/register", function(req, res){
-  res.render("register")
+  res.render("register");
 });
 
 app.post("/register", function(req, res){
